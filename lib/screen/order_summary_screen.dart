@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import '../utils/currency.dart';
 import 'payment_screen.dart';
 
 class OrderSummaryScreen extends StatelessWidget {
@@ -39,22 +40,31 @@ class OrderSummaryScreen extends StatelessWidget {
                   children: [
                     const Text('Total Belanja',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text('Rp $totalPrice',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red)),
+                    Text(
+                      formatRupiah(totalPrice),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+
                   ],
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const PaymentScreen()),
-                    );
-                  },
-                  child: const Text('Pilih Metode Pembayaran'),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PaymentScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Pilih Metode Pembayaran'),
+                  ),
                 ),
               ],
             ),
