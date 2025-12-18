@@ -73,7 +73,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 12),
 
-                        /// INFO PRODUK
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
