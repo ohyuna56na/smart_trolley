@@ -25,3 +25,15 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/images/onboarding.png
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/poppins.ttf
+          weight: 400
+        - asset: assets/fonts/poppins_medium.ttf
+          weight: 500
+        - asset: assets/fonts/poppins_bold.ttf
+          weight: 700
+        - asset: assets/fonts/poppins_black.ttf
+          weight: 900

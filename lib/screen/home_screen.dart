@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import '../theme/app_colors.dart';
 import '../utils/currency.dart';
 import 'order_summary_screen.dart';
 
@@ -31,13 +32,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int get totalPrice {
     return products.fold(
-        0, (sum, item) => sum + (item.price * item.qty));
+      0,
+          (sum, item) => sum + (item.price * item.qty),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product')),
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        title: const Text(
+          'Product',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.buttonText,
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -49,9 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Card(
                   margin: const EdgeInsets.all(10),
                   child: Padding(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(12),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.asset(
                           product.image,
@@ -60,44 +72,55 @@ class _HomeScreenState extends State<HomeScreen> {
                           fit: BoxFit.cover,
                         ),
                         const SizedBox(width: 12),
+
+                        /// INFO PRODUK
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(product.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                product.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(height: 4),
-                              Text('Rp ${product.price}'),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove),
-                                    onPressed: () {
-                                      if (product.qty > 1) {
-                                        setState(() => product.qty--);
-                                      }
-                                    },
-                                  ),
-                                  Text('${product.qty}'),
-                                  IconButton(
-                                    icon: const Icon(Icons.add),
-                                    onPressed: () {
-                                      setState(() => product.qty++);
-                                    },
-                                  ),
-                                ],
+                              Text(
+                                formatRupiah(product.price),
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon:
-                          const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            setState(() => products.removeAt(index));
-                          },
+
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: () {
+                                setState(() {
+                                  product.qty--;
+                                  if (product.qty <= 0) {
+                                    products.removeAt(index);
+                                  }
+                                });
+                              },
+                            ),
+                            Text(
+                              '${product.qty}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () {
+                                setState(() => product.qty++);
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -107,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          /// Bottom Checkout Button
+          /// BOTTOM CHECKOUT
           Container(
             padding: const EdgeInsets.all(16),
             child: SizedBox(
@@ -115,15 +138,19 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
+                onPressed: products.isEmpty
+                    ? null
+                    : () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => OrderSummaryScreen(products: products),
+                      builder: (_) =>
+                          OrderSummaryScreen(products: products),
                     ),
                   );
                 },
@@ -135,18 +162,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: AppColors.buttonText,
                       ),
                     ),
                     const Text(
                       'Checkout',
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(
+                        color: AppColors.buttonText,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
           ),
-
         ],
       ),
     );

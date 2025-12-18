@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import '../theme/app_colors.dart';
 import '../utils/currency.dart';
 import 'payment_screen.dart';
 
@@ -16,19 +17,51 @@ class OrderSummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ringkasan Pesanan')),
+      appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: AppColors.buttonText,
+              size: 20,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            'Ringkasan Pesanan',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.buttonText,
+            ),
+          )
+      ),
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              children: products.map((p) {
+            child: ListView.separated(
+              itemCount: products.length,
+              separatorBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Divider(
+                    color: AppColors.textPrimary,
+                    thickness: 0.5,
+                  ),
+                );
+              },
+              itemBuilder: (context, index) {
+                final p = products[index];
                 return ListTile(
                   leading: Image.asset(p.image, width: 50),
                   title: Text(p.name),
-                  subtitle: Text('${p.qty} x Rp ${p.price}'),
-                  trailing: Text('Rp ${p.qty * p.price}'),
+                  subtitle: Text('${p.qty} x ${formatRupiah(p.price)}'),
+                  trailing: Text(
+                    formatRupiah(p.qty * p.price),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 );
-              }).toList(),
+              },
             ),
           ),
           Container(
@@ -44,7 +77,7 @@ class OrderSummaryScreen extends StatelessWidget {
                       formatRupiah(totalPrice),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.red,
+                        color: AppColors.price,
                       ),
                     ),
 
@@ -55,6 +88,12 @@ class OrderSummaryScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.buttonPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -63,7 +102,13 @@ class OrderSummaryScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text('Pilih Metode Pembayaran'),
+                    child: const Text(
+                      'Pilih Metode Pembayaran',
+                      style: TextStyle(
+                          color: AppColors.buttonText,
+                          fontSize: 16
+                      ),
+                    ),
                   ),
                 ),
               ],

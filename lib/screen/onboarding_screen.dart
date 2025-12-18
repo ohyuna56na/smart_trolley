@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 import 'home_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -20,13 +21,14 @@ class OnboardingScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             const Text(
               'Belanja kampus jadi lebih simple',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: AppColors.textHint),
             ),
             const SizedBox(height: 40),
             SizedBox(
@@ -34,6 +36,7 @@ class OnboardingScreen extends StatelessWidget {
               height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -45,7 +48,10 @@ class OnboardingScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (_) => const HomeScreen()),
                   );
                 },
-                child: const Text('Mulai'),
+                child: const Text(
+                    'Mulai',
+                    style: TextStyle(color: AppColors.buttonText),
+                ),
               ),
             ),
           ],
