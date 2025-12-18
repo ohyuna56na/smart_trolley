@@ -13,7 +13,7 @@ class OnboardingScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/onboarding.png', height: 280),
+            Image.asset('assets/images/onboarding.png', height: 280),
             const SizedBox(height: 32),
             const Text(
               'SmartTroll',
@@ -31,6 +31,7 @@ class OnboardingScreen extends StatelessWidget {
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
+              height: 48,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
