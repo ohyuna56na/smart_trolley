@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../models/product.dart';
 import '../theme/app_colors.dart';
 import '../utils/currency.dart';
 import 'order_summary_screen.dart';
+import '../services/product_service.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,24 +15,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Product> products = [
-    Product(
-      name: 'Kodomo Tisu Basah Bayi',
-      price: 11500,
-      image: 'assets/images/logo.png',
-    ),
-    Product(
-      name: 'Alfamart Tisu Wajah',
-      price: 24100,
-      image: 'assets/images/logo.png',
-    ),
-    Product(
-      name: 'Mama Lemon Sabun Cuci',
-      price: 27200,
-      image: 'assets/images/logo.png',
-    ),
-  ];
+  List<Product> products = [];
+  bool isLoading = true;
 
+  @override
+  void initState() {
+    super.initState();
+    loadProducts();
+  }
+
+  Future<void> loadProducts() async {
+    try {
+      final data = await ProductService.fetchProducts();
+      setState(() {
+        products = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      debugPrint(e.toString());
+    }
+  }
+
+  /// TOTAL HARGA
   int get totalPrice {
     return products.fold(
       0,
@@ -51,10 +59,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      body: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
+          /// LIST PRODUK
           Expanded(
-            child: ListView.builder(
+            child: products.isEmpty
+                ? const Center(child: Text('Produk kosong'))
+                : ListView.builder(
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
@@ -65,22 +78,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(12),
                     child: Row(
                       children: [
-                        Image.asset(
-                          product.image,
-                          width: 70,
-                          height: 70,
-                          fit: BoxFit.cover,
+                        /// ICON PRODUK
+                        const Icon(
+                          Icons.shopping_cart,
+                          size: 48,
+                          color: AppColors.primary,
                         ),
                         const SizedBox(width: 12),
 
+                        /// INFO PRODUK
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
                             children: [
                               Text(
                                 product.name,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 14,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -94,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
 
+                        /// QTY CONTROL
                         Row(
                           children: [
                             IconButton(
