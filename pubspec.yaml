@@ -13,8 +13,10 @@ dependencies:
   intl: ^0.18.1
   ai_barcode_scanner: ^7.1.0
   http: ^1.2.0
+  webview_flutter: ^4.7.0
 
   cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

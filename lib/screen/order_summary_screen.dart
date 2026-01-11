@@ -6,10 +6,12 @@ import 'payment_screen.dart';
 
 class OrderSummaryScreen extends StatelessWidget {
   final List<Product> products;
+  final String deviceId;
 
   const OrderSummaryScreen({
     super.key,
     required this.products,
+    required this.deviceId,
   });
 
   int get totalPrice {
@@ -35,7 +37,7 @@ class OrderSummaryScreen extends StatelessWidget {
         title: const Text(
           'Ringkasan Pesanan',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppColors.buttonText,
           ),
@@ -124,12 +126,12 @@ class OrderSummaryScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const PaymentScreen(),
+                          builder: (_) => PaymentScreen(deviceId: deviceId),
                         ),
                       );
                     },
                     child: const Text(
-                      'Pilih Metode Pembayaran',
+                      'Bayar',
                       style: TextStyle(
                         color: AppColors.buttonText,
                         fontSize: 16,

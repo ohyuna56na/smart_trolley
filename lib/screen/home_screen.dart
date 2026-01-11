@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ai_barcode_scanner/ai_barcode_scanner.dart';
+import 'package:smart_trolley/screen/qris_webview_screen.dart';
 
 import '../models/product.dart';
+import '../services/app_session.dart';
 import '../services/product_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/currency.dart';
@@ -17,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? apiUrl;
+  String? deviceId;
   List<Product> products = [];
   bool isLoading = false;
   Timer? _timer;
@@ -67,6 +70,39 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _restoreSession();
+  }
+
+  Future<void> _restoreSession() async {
+    final session = await AppSession.load();
+
+    if (session['paymentPending'] == true &&
+        session['paymentUrl'] != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              QrisWebViewScreen(url: session['paymentUrl']),
+        ),
+      );
+      return;
+    }
+
+    if (session['apiUrl'] != null && session['deviceId'] != null) {
+      setState(() {
+        apiUrl = session['apiUrl'];
+        deviceId = session['deviceId'];
+        isLoading = true;
+      });
+      fetchProducts();
+      startAutoUpdate();
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -76,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: const TextStyle(
             color: AppColors.buttonText,
             fontWeight: FontWeight.bold,
+            fontSize: 18
           ),
         ),
       ),
@@ -99,16 +136,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => AiBarcodeScanner(
-                    onDetect: (capture) {
-                      final code =
-                          capture.barcodes.first.rawValue;
-                      if (code != null) {
-                        setState(() {
-                          apiUrl = code;
-                          isLoading = true;
-                        });
-                        fetchProducts();
-                        startAutoUpdate();
+                    onDetect: (capture) async {
+                      final code = capture.barcodes.first.rawValue;
+                      if (code == null) return;
+
+                      final uri = Uri.parse(code);
+                      final scannedDeviceId = uri.pathSegments.last;
+
+                      await AppSession.saveCart(
+                        apiUrl: code,
+                        deviceId: scannedDeviceId,
+                      );
+
+                      if (!mounted) return;
+
+                      setState(() {
+                        apiUrl = code;
+                        deviceId = scannedDeviceId;
+                        isLoading = true;
+                      });
+
+                      fetchProducts();
+                      startAutoUpdate();
+
+                      if (mounted) {
                         Navigator.pop(context);
                       }
                     },
@@ -210,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (_) =>
-                        OrderSummaryScreen(products: products),
+                        OrderSummaryScreen(products: products, deviceId: deviceId!),
                   ),
                 );
               },
