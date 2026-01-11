@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import '../services/app_session.dart';
 import '../theme/app_colors.dart';
 import '../utils/currency.dart';
 import 'payment_screen.dart';
@@ -122,7 +123,20 @@ class OrderSummaryScreen extends StatelessWidget {
                     ),
                     onPressed: products.isEmpty
                         ? null
-                        : () {
+                        : () async {
+
+                      await AppSession.saveReceiptDraft(
+                        items: products.map((p) => {
+                          'name': p.name,
+                          'qty': p.qty,
+                          'price': p.price,
+                          'subtotal': p.price * p.qty,
+                        }).toList(),
+                        total: totalPrice, customerName: '', customerEmail: '', customerPhone: '',
+                      );
+
+                      if (!context.mounted) return;
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -130,6 +144,7 @@ class OrderSummaryScreen extends StatelessWidget {
                         ),
                       );
                     },
+
                     child: const Text(
                       'Bayar',
                       style: TextStyle(

@@ -30,6 +30,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final receipt = await AppSession.loadReceipt();
+
+      final List<Map<String, dynamic>> items =
+      List<Map<String, dynamic>>.from(
+        (receipt['items'] as List).map(
+              (e) => Map<String, dynamic>.from(e),
+        ),
+      );
+
+      await AppSession.saveReceiptDraft(
+        items: items,
+        total: receipt['total'] as int,
+        customerName: _nameController.text,
+        customerEmail: _emailController.text,
+        customerPhone: _phoneController.text,
+      );
+
       final result = await CheckoutService.checkoutQris(
         deviceId: widget.deviceId,
         name: _nameController.text,
@@ -48,6 +65,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
           builder: (_) => QrisWebViewScreen(
             url: result['paymentUrl'],
             invoice: result['invoice'],
+            onPaymentFailed: () {
+              Navigator.popUntil(
+                context,
+                    (route) => route.settings.name == 'order-summary',
+              );
+            },
           ),
         ),
       );

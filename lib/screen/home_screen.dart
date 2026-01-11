@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (_) =>
               QrisWebViewScreen(
                   url: session['paymentUrl'],
-                  invoice: session['invoice']
+                  invoice: session['invoice'], onPaymentFailed: () {  },
               ),
         ),
       );
@@ -259,13 +259,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               onPressed: products.isEmpty
                   ? null
-                  : () {
-                Navigator.push(
+                  : () async {
+                final session = await AppSession.load();
+
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        OrderSummaryScreen(products: products, deviceId: deviceId!),
-                  ),
+                  'order-summary',
+                  arguments: {
+                    'products': products,
+                    'deviceId': session['deviceId'],
+                  },
                 );
               },
               child: Row(

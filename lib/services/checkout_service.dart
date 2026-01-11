@@ -2,6 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class CheckoutService {
+  static const String _baseUrl = 'https://iot.sindangraja.com';
+
+  /// ============================
+  /// CHECKOUT QRIS
+  /// ============================
   static Future<Map<String, dynamic>> checkoutQris({
     required String deviceId,
     required String name,
@@ -9,8 +14,11 @@ class CheckoutService {
     required String phone,
   }) async {
     final res = await http.post(
-      Uri.parse('https://iot.sindangraja.com/api/cart/checkout'),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse('$_baseUrl/api/cart/checkout'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
       body: jsonEncode({
         'device_id': deviceId,
         'payment_method': 'midtrans',
@@ -20,9 +28,12 @@ class CheckoutService {
       }),
     );
 
+    _validateResponse(res);
+
     final data = jsonDecode(res.body);
-    print('CHECKOUT RESPONSE: $data');
-    if (!data['success']) throw Exception(data['message']);
+    if (data['success'] != true) {
+      throw Exception(data['message'] ?? 'Checkout failed');
+    }
 
     return {
       'invoice': data['invoice'],
@@ -30,23 +41,60 @@ class CheckoutService {
     };
   }
 
+  /// ============================
+  /// CHECK PAYMENT STATUS
+  /// ============================
   static Future<String> checkPaymentStatus(String invoice) async {
     final res = await http.get(
-      Uri.parse(
-        'https://iot.sindangraja.com/api/payment/status/$invoice',
-      ),
+      Uri.parse('$_baseUrl/api/payment/status/$invoice'),
+      headers: {
+        'Accept': 'application/json',
+      },
     );
+
+    _validateResponse(res);
 
     final data = jsonDecode(res.body);
-    return data['status'];
+    print('CHECKOUT RESPONSE: $data');
+    print('PAYMENT URL: ${data['payment_url']}');
+    /// completed | pending | failed
+    return data['status'] ?? 'pending';
   }
 
+  /// ============================
+  /// GET RECEIPT (ANTI HTML CRASH)
+  /// ============================
   static Future<Map<String, dynamic>> getReceipt(String invoice) async {
     final res = await http.get(
-      Uri.parse(
-        'https://iot.sindangraja.com/api/payment/receipt/$invoice',
-      ),
+      Uri.parse('$_baseUrl/api/payment/status/$invoice'),
+      headers: {
+        'Accept': 'application/json',
+      },
     );
+
+    _validateResponse(res);
+
     return jsonDecode(res.body);
+  }
+
+  /// ============================
+  /// GLOBAL RESPONSE VALIDATION
+  /// ============================
+  static void _validateResponse(http.Response res) {
+    // 1️⃣ HTTP status
+    if (res.statusCode != 200) {
+      throw Exception('Server error (${res.statusCode})');
+    }
+
+    // 2️⃣ Content-Type harus JSON
+    final contentType = res.headers['content-type'] ?? '';
+    if (!contentType.contains('application/json')) {
+      throw Exception('Invalid response format (not JSON)');
+    }
+
+    // 3️⃣ Body tidak boleh kosong
+    if (res.body.isEmpty) {
+      throw Exception('Empty response from server');
+    }
   }
 }
