@@ -1,44 +1,44 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSession {
-  static const _apiUrl = 'api_url';
-  static const _deviceId = 'device_id';
-  static const _paymentUrl = 'payment_url';
-  static const _paymentPending = 'payment_pending';
+  static const _apiUrl = 'apiUrl';
+  static const _deviceId = 'deviceId';
+  static const _invoice = 'invoice';
+  static const _paymentUrl = 'paymentUrl';
+  static const _paymentPending = 'paymentPending';
 
   static Future<void> saveCart({
     required String apiUrl,
     required String deviceId,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_apiUrl, apiUrl);
-    await prefs.setString(_deviceId, deviceId);
+    final p = await SharedPreferences.getInstance();
+    await p.setString(_apiUrl, apiUrl);
+    await p.setString(_deviceId, deviceId);
   }
 
-  static Future<void> savePayment(String paymentUrl) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_paymentUrl, paymentUrl);
-    await prefs.setBool(_paymentPending, true);
+  static Future<void> savePayment({
+    required String invoice,
+    required String paymentUrl,
+  }) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString(_invoice, invoice);
+    await p.setString(_paymentUrl, paymentUrl);
+    await p.setBool(_paymentPending, true);
   }
 
   static Future<Map<String, dynamic>> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final p = await SharedPreferences.getInstance();
     return {
-      'apiUrl': prefs.getString(_apiUrl),
-      'deviceId': prefs.getString(_deviceId),
-      'paymentUrl': prefs.getString(_paymentUrl),
-      'paymentPending': prefs.getBool(_paymentPending) ?? false,
+      'apiUrl': p.getString(_apiUrl),
+      'deviceId': p.getString(_deviceId),
+      'invoice': p.getString(_invoice),
+      'paymentUrl': p.getString(_paymentUrl),
+      'paymentPending': p.getBool(_paymentPending) ?? false,
     };
   }
 
-  static Future<void> clearPayment() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_paymentUrl);
-    await prefs.setBool(_paymentPending, false);
-  }
-
   static Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    final p = await SharedPreferences.getInstance();
+    await p.clear();
   }
 }

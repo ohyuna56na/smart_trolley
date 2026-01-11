@@ -84,7 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
         context,
         MaterialPageRoute(
           builder: (_) =>
-              QrisWebViewScreen(url: session['paymentUrl']),
+              QrisWebViewScreen(
+                  url: session['paymentUrl'],
+                  invoice: session['invoice']
+              ),
         ),
       );
       return;

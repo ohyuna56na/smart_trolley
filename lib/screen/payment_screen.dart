@@ -30,21 +30,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final url = await CheckoutService.checkoutQris(
+      final result = await CheckoutService.checkoutQris(
         deviceId: widget.deviceId,
         name: _nameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
       );
 
-      await AppSession.savePayment(url);
+      await AppSession.savePayment(
+        invoice: result['invoice'],
+        paymentUrl: result['paymentUrl'],
+      );
 
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => QrisWebViewScreen(url: url),
+          builder: (_) => QrisWebViewScreen(
+            url: result['paymentUrl'],
+            invoice: result['invoice'],
+          ),
         ),
       );
     } catch (e) {
