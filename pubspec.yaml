@@ -1,5 +1,5 @@
-name: smart_trolley
-description: "A new Flutter project."
+name: ummi_trolley
+description: "UMMI Trolley - Smart Shopping Application"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
@@ -21,6 +21,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1   
+
+flutter_icons:                      
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
 
   flutter_lints: ^5.0.0
 
@@ -29,6 +36,7 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/images/onboarding.png
+    - assets/icon/icon.png
 
   fonts:
     - family: Poppins
