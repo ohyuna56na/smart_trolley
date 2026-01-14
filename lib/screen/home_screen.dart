@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:ai_barcode_scanner/ai_barcode_scanner.dart';
 import 'package:smart_trolley/screen/qris_webview_screen.dart';
 
+import '../constants/api_constants.dart';
 import '../models/product.dart';
 import '../services/app_session.dart';
 import '../services/product_service.dart';
 import '../theme/app_colors.dart';
 import '../utils/currency.dart';
-import 'order_summary_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -115,12 +115,64 @@ class _HomeScreenState extends State<HomeScreen> {
           style: const TextStyle(
             color: AppColors.buttonText,
             fontWeight: FontWeight.bold,
-            fontSize: 18
+            fontSize: 18,
           ),
         ),
+        actions: apiUrl == null
+            ? []
+            : [
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            onPressed: _confirmClearCart,
+          ),
+        ],
       ),
+
       body: apiUrl == null ? _buildScanView() : _buildProductView(),
     );
+  }
+
+  void _confirmClearCart() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Hapus Keranjang'),
+        content: const Text('Yakin ingin menghapus semua produk?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _clearCart();
+            },
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _clearCart() async {
+    if (deviceId == null) return;
+
+    try {
+      await ProductService.clearCart(deviceId!);
+
+      setState(() {
+        products.clear();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Keranjang berhasil dikosongkan')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
 
   /// ================== VIEW 1 : SCAN QR ==================
@@ -176,18 +228,72 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void increaseQty(int index) {
-    setState(() {
-      products[index].qty++;
-    });
+  void increaseQty(int index) async {
+    final p = products[index];
+
+    try {
+      _timer?.cancel();
+
+      await ProductService.updateQuantity(
+        deviceId: deviceId!,
+        itemId: p.id,
+        quantity: p.qty + 1,
+      );
+
+      await fetchProducts();
+      startAutoUpdate();
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
-  void decreaseQty(int index) {
-    setState(() {
-      if (products[index].qty > 1) {
-        products[index].qty--;
-      }
-    });
+  void decreaseQty(int index) async {
+    final p = products[index];
+    if (p.qty <= 1) return;
+
+    try {
+      _timer?.cancel();
+
+      await ProductService.updateQuantity(
+        deviceId: deviceId!,
+        itemId: p.id,          // ⬅️ Product.id
+        quantity: p.qty - 1,
+      );
+
+      await fetchProducts();
+      startAutoUpdate();
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  Widget _buildProductImage(Product p) {
+    if (p.image == null || p.image!.isEmpty) {
+      return const Icon(Icons.inventory, size: 40);
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        ApiConstants.baseUrl + p.image!,
+        width: 48,
+        height: 48,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.inventory, size: 40);
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const SizedBox(
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        },
+      ),
+    );
   }
 
   /// ================== VIEW 2 : PRODUK ==================
@@ -210,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return Card(
                 margin: const EdgeInsets.all(10),
                 child: ListTile(
-                  leading: const Icon(Icons.inventory),
+                  leading: _buildProductImage(p),
                   title: Text(p.name),
                   subtitle: Text(formatRupiah(p.price)),
                   trailing: Row(

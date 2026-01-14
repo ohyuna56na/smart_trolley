@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class CheckoutService {
-  static const String _baseUrl = 'https://iot.sindangraja.com';
+import '../constants/api_constants.dart';
 
-  /// ============================
+class CheckoutService {
+
   /// CHECKOUT QRIS
-  /// ============================
   static Future<Map<String, dynamic>> checkoutQris({
     required String deviceId,
     required String name,
@@ -14,7 +13,7 @@ class CheckoutService {
     required String phone,
   }) async {
     final res = await http.post(
-      Uri.parse('$_baseUrl/api/cart/checkout'),
+      Uri.parse('${ApiConstants.baseUrl}api/cart/checkout'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -41,12 +40,10 @@ class CheckoutService {
     };
   }
 
-  /// ============================
   /// CHECK PAYMENT STATUS
-  /// ============================
   static Future<String> checkPaymentStatus(String invoice) async {
     final res = await http.get(
-      Uri.parse('$_baseUrl/api/payment/status/$invoice'),
+      Uri.parse('${ApiConstants.baseUrl}api/payment/status/$invoice'),
       headers: {
         'Accept': 'application/json',
       },
@@ -61,12 +58,10 @@ class CheckoutService {
     return data['status'] ?? 'pending';
   }
 
-  /// ============================
   /// GET RECEIPT (ANTI HTML CRASH)
-  /// ============================
   static Future<Map<String, dynamic>> getReceipt(String invoice) async {
     final res = await http.get(
-      Uri.parse('$_baseUrl/api/payment/status/$invoice'),
+      Uri.parse('${ApiConstants.baseUrl}api/payment/status/$invoice'),
       headers: {
         'Accept': 'application/json',
       },
@@ -77,22 +72,17 @@ class CheckoutService {
     return jsonDecode(res.body);
   }
 
-  /// ============================
   /// GLOBAL RESPONSE VALIDATION
-  /// ============================
   static void _validateResponse(http.Response res) {
-    // 1️⃣ HTTP status
     if (res.statusCode != 200) {
       throw Exception('Server error (${res.statusCode})');
     }
 
-    // 2️⃣ Content-Type harus JSON
     final contentType = res.headers['content-type'] ?? '';
     if (!contentType.contains('application/json')) {
       throw Exception('Invalid response format (not JSON)');
     }
 
-    // 3️⃣ Body tidak boleh kosong
     if (res.body.isEmpty) {
       throw Exception('Empty response from server');
     }

@@ -1,4 +1,4 @@
-name: ummi_trolley
+name: smart_trolley
 description: "UMMI Trolley - Smart Shopping Application"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
