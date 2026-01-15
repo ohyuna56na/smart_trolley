@@ -51,11 +51,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// RESET KE AWAL
-  void resetCart() {
+  Future<void> resetCart() async {
     _timer?.cancel();
+
+    await AppSession.clearCartSession();
+
     setState(() {
       apiUrl = null;
+      deviceId = null;
       products.clear();
+      isLoading = false;
     });
   }
 
@@ -349,9 +354,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: const Text('Batal'),
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
-                        resetCart();
+                        await resetCart();
                       },
                       child: const Text('Ya'),
                     ),

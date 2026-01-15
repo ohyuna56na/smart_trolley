@@ -24,6 +24,12 @@ class AppSession {
     await p.setString(_deviceId, deviceId);
   }
 
+  static Future<void> clearCartSession() async {
+    final p = await SharedPreferences.getInstance();
+    await p.remove(_apiUrl);
+    await p.remove(_deviceId);
+  }
+
   static Future<void> saveReceiptDraft({
     required List<Map<String, dynamic>> items,
     required int total,
