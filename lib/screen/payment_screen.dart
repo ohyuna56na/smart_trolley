@@ -3,6 +3,9 @@ import '../services/app_session.dart';
 import '../theme/app_colors.dart';
 import 'qris_webview_screen.dart';
 import '../services/checkout_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class PaymentScreen extends StatefulWidget {
   final String deviceId;
@@ -59,6 +62,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         paymentUrl: result['paymentUrl'],
       );
 
+      final url = Uri.parse(result['paymentUrl']);
+
+      if (kIsWeb) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -74,6 +82,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
         ),
       );
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
