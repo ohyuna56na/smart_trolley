@@ -301,6 +301,69 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildEmptyCartView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.shopping_cart_outlined,
+            size: 80,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Menunggu produk dimasukkan ke keranjang...',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.buttonText,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+
+          ElevatedButton.icon(
+            icon: const Icon(Icons.qr_code_scanner),
+            label: const Text('Kembali Scan QR'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Kembali ke Scan'),
+                  content: const Text(
+                    'Keranjang akan dilepas dan bisa dipakai ulang.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Batal'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        resetCart();
+                      },
+                      child: const Text('Ya'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   /// ================== VIEW 2 : PRODUK ==================
   Widget _buildProductView() {
@@ -310,13 +373,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         Expanded(
           child: products.isEmpty
-              ? const Center(
-            child: Text(
-              'Menunggu produk dimasukkan ke keranjang...',
-            ),
-          )
+              ? _buildEmptyCartView()
               : ListView.builder(
-            itemCount: products.length,
+          itemCount: products.length,
             itemBuilder: (context, index) {
               final p = products[index];
               return Card(
