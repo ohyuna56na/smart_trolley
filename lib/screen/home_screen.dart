@@ -257,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       await ProductService.updateQuantity(
         deviceId: deviceId!,
-        itemId: p.id,          // ⬅️ Product.id
+        itemId: p.id,
         quantity: p.qty - 1,
       );
 
@@ -274,14 +274,19 @@ class _HomeScreenState extends State<HomeScreen> {
       return const Icon(Icons.inventory, size: 40);
     }
 
+    final imageUrl = '${ApiConstants.baseUrl}storage/${p.image}';
+
+    debugPrint('IMAGE URL: $imageUrl');
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Image.network(
-        ApiConstants.baseUrl + p.image!,
+        imageUrl,
         width: 48,
         height: 48,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
+          debugPrint('IMAGE ERROR: $error');
           return const Icon(Icons.inventory, size: 40);
         },
         loadingBuilder: (context, child, loadingProgress) {
@@ -295,6 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   /// ================== VIEW 2 : PRODUK ==================
   Widget _buildProductView() {
